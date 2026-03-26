@@ -87,9 +87,17 @@ button:active {
 
 <!-- Kamera görüntüsü -->
 <div id="cameraBox">
-  http://192.168.1.8:8080/video
+  http://192.168.1.8:8080/shot
 </div>
-<img src="http://192.168.1.8:8080/video" width="640" height="480" />
+
+<img id="cam" src="" width="640" height="480">
+
+<script>
+setInterval(()=>{
+   document.getElementById("cam").src =
+   "http://192.168.1.8:8080/shot.jpg?t=" + Math.random();
+}, 150); // ~7 FPS
+</script>
     
 <!-- Komut butonları -->
 <div class="btn-container">
