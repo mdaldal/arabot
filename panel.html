@@ -1,115 +1,146 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IP Kamera + Komut Paneli</title>
+    <meta charset="UTF-8">
+    <title>Firebase Update Sample</title>
 
-<script>
-// Firebase ayarları
-var firebaseConfig = {
-    databaseURL: "https://arabotbase1-default-rtdb.firebaseio.com/"
-};
-firebase.initializeApp(firebaseConfig);
+    <script type="module">
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
-// Komut gönder
-function sendCommand(cmd){
-    firebase.database().ref("komut").set(cmd);
-    document.getElementById("status").innerHTML = "Gönderildi: " + cmd;
-}
-</script>
+        import { getDatabase, ref, update }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #0d1117;
-  color: white;
-  margin: 0;
-  padding: 10px;
-  text-align: center;
-}
+        // --- Firebase Config (kendi değerlerini koy) ---
+        const firebaseConfig = {
+            apiKey: "API_KEY",
+            databaseURL: "https://arabotbase1-default-rtdb.firebaseio.com",
+        };
 
-h2 {
-  font-size: 22px;
-  margin-bottom: 10px;
-}
+        // Firebase başlat
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-/* Kamera görüntüsü kutusu */
-#cameraBox {
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  background: black;
-  border-radius: 10px;
-  overflow: hidden;
-}
+        // -----------------------------
+        //   KOLON GÜNCELLEME FONKSİYONU
+        // -----------------------------
+        function updateColumn(cmd) {
+  
+            const userRef = ref(db);
 
-#cameraView {
-  width: 100%;
-  height: auto;
-}
+            update(userRef,
+                {
+                    Komut: cmd
+                }
+            )
+                .catch(err => console.error("Hata:", err));
+            document.getElementById("status").innerHTML = "Gönderildi: " + cmd;
+        }
 
-/* Buton grid */
-.btn-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-top: 20px;
-}
+        window.updateColumn = updateColumn;
+    </script>
 
-/* Mobil uyumlu buton */
-button {
-  padding: 16px;
-  font-size: 18px;
-  border: none;
-  border-radius: 10px;
-  background: #238636;
-  color: white;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
-}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0d1117;
+            color: white;
+            margin: 0;
+            padding: 10px;
+            text-align: center;
+        }
 
-button:active {
-  background: #1c6d2a;
-  transform: scale(0.97);
-}
+        h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
 
-#status {
-  margin-top: 20px;
-  font-size: 18px;
-  font-weight: bold;
-}
-</style>
+        /* Kamera görüntüsü kutusu */
+        #cameraBox {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            background: black;
+            border-radius: 10px;
+            overflow: hidden;
+        }
 
+        #cameraView {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Buton grid */
+        .btn-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* Mobil uyumlu buton */
+        button {
+            padding: 16px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            background: #238636;
+            color: white;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+        }
+
+            button:active {
+                background: #1c6d2a;
+                transform: scale(0.97);
+            }
+
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
+    <h2>IP Kamera + OTG Komut Paneli</h2>
 
-<h2>📡IP Kamera + OTG Komut Paneli</h2>
+    <!-- Kamera görüntüsü -->
+    <div id="cameraBox">
+        http://192.168.1.6:8080/shot
+    </div>
 
-<!-- Kamera görüntüsü -->
-<div id="cameraBox">
-  http://192.168.1.8:8080/shot
-</div>
+    <img id="cam" src="" width="640" height="480">
 
-<img id="cam" src="" width="640" height="480">
+    <script>
 
-<script>
-setInterval(()=>{
-   document.getElementById("cam").src =
-   "http://192.168.1.8:8080/shot.jpg?t=" + Math.random();
-}, 150); // ~7 FPS
-</script>
-    
-<!-- Komut butonları -->
-<div class="btn-container">
-  <button onclick="sendCommand('led_on')">LED Aç</button>
-  <button onclick="sendCommand('led_off')">LED Kapat</button>
-  <button onclick="sendCommand('motor_start')">Motor Başlat</button>
-  <button onclick="sendCommand('motor_stop')">Motor Durdur</button>
-  <button onclick="sendCommand('reload_cam')">Kamerayı Yenile</button>
-  <button onclick="sendCommand('reset')">Cihaz Reset</button>
-</div>
+        function getImage() {
+            setInterval(() => {
 
-<p id="status">Komut bekleniyor...</p>
+                document.getElementById('cam').src = "http://192.168.1.6:8080/shot.jpg?t=" + new Date().getTime();
+            }, 1000); // 1000 = 1 saniyede bir yenile
+        }
 
+        function stopImage() {
+
+
+            document.getElementById('cam').src = "";
+
+
+        }
+        
+        
+    </script>
+    <!-- Komut butonları -->
+    <div class="btn-container">
+        <button onclick="updateColumn('led_on')">LED Aç</button>
+        <button onclick="updateColumn('led_off')">LED Kapat</button>
+        <button onclick="updateColumn('motor_start')">Motor Başlat</button>
+        <button onclick="updateColumn('motor_stop')">Motor Durdur</button>
+        <button onclick="getImage()">Get Image</button>
+        <button onclick="stopImage()">Stop Image</button>
+    </div>
+
+    <p id="status">Komut bekleniyor...</p>
 </body>
 </html>
